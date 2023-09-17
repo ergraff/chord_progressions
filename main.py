@@ -34,6 +34,29 @@ notes_to_symbol = {frozenset({1,5,8}):  'I',
 				   frozenset({10,1,5}): 'vi',
 				   frozenset({12,3,6}): 'viio'}
 
+class Node:
+	chord: str
+	children: list
+	finished: bool
+	
+	def __init__(self, chord: str):
+		self.chord = chord
+		self.children = []
+		# if self.chord == goal chord
+			# self.finished = True
+		# else:
+			# self.finished = False
+
+	def evaluate(self):
+		# (Main work goes here)
+
+		# Find all possible chords
+			# Is it diatonic?
+				# Yes, add as new child
+
+		# (Recursively) Evaluate all new children if they are not self.finished
+		pass
+
 def note_step(note: int, s: int) -> int:
 	new = note+s
 	if new > 12:
@@ -45,7 +68,12 @@ def note_step(note: int, s: int) -> int:
 
 def main():
 	print("Hello, world!");
+	# Create root node
 
+	# Evaluate tree
+		# root.evaluate()
+
+	# Print tree
 
 if __name__ == "__main__":
 	main()
