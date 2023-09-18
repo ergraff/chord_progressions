@@ -1,3 +1,5 @@
+import copy
+
 # Offset values for keys
 key_offsets = {'C': 0,
 			   'C#': 1,
@@ -34,29 +36,64 @@ notes_to_symbol = {frozenset({1,5,8}):  'I',
 				   frozenset({10,1,5}): 'vi',
 				   frozenset({12,3,6}): 'viio'}
 
+# Global user variables
+START_CHORD = 'I'
+GOAL_CHORD = 'I'
+
 class Node:
 	chord: str
 	children: list
 	finished: bool
+	history: list
+	is_root: bool
 	
-	def __init__(self, chord: str):
+	def __init__(self, chord: str, history: list):
 		self.chord = chord
 		self.children = []
-		# if self.chord == goal chord
-			# self.finished = True
-		# else:
-			# self.finished = False
+		self.history = history
+		self.history.append(self.chord)
+		self.finished = (self.chord == GOAL_CHORD)
+		if self.finished and self.chord != 'I':
+			self.history.append(GOAL_CHORD)
 
+	def print_node(self):
+		output = ""
+		for i, chord in enumerate(self.history):
+			if i == len(self.history)-1:
+				output += chord
+			else:
+				output += chord + " "
+		print(output)
+
+	def print_progressions(self):
+		if self.finished: self.print_node()
+		for child in self.children:
+			child.print_progressions()
+		
 	def evaluate(self):
-		# (Main work goes here)
-
 		# Find all possible chords
-			# Is it diatonic?
-				# Yes, add as new child
+		steps = [-2, -1, 0, 1, 2]
+		for i in steps:
+			for j in steps:
+				for k in steps:
+					# New chord
+					chord = list(symbol_to_notes[self.chord])
+					n1 = note_step(chord[0], i)
+					n2 = note_step(chord[1], j)
+					n3 = note_step(chord[2], k)
+					new = frozenset({n1, n2, n3})
+					
+					# Is it diatonic and not in 'history' (excluding starting chord)? 
+					if new in symbol_to_notes.values() and notes_to_symbol[new] not in self.history[1:]:
+						# Yes, add as new child
+						child = Node(notes_to_symbol[new], copy.deepcopy(self.history))
+						self.children.append(child)
 
 		# (Recursively) Evaluate all new children if they are not self.finished
-		pass
-
+		for child in self.children:
+			if child.finished == False:
+				child.evaluate()
+		
 def note_step(note: int, s: int) -> int:
 	new = note+s
 	if new > 12:
@@ -67,13 +104,14 @@ def note_step(note: int, s: int) -> int:
 
 
 def main():
-	print("Hello, world!");
 	# Create root node
+	root = Node(START_CHORD, [])
 
 	# Evaluate tree
-		# root.evaluate()
+	root.evaluate()
 
 	# Print tree
+	root.print_progressions()
 
 if __name__ == "__main__":
 	main()
